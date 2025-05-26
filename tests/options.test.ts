@@ -30,6 +30,7 @@ import {
     DEFAULT_INPUT_STRUCTURE,
     ALLOWED_INPUT_FILENAME_OPTIONS,
     ALLOWED_INPUT_STRUCTURES,
+    DEFAULT_CONCURRENCY,
 } from '../src/constants';
 
 // --- Mock Console for Logger Tests ---
@@ -106,6 +107,7 @@ describe('Options Definitions', () => {
                 extensions: DEFAULT_EXTENSIONS,
                 startDate: undefined, // Ensure non-set defaults are undefined
                 endDate: undefined,
+                concurrency: DEFAULT_CONCURRENCY,
             };
             expect(DEFAULT_APP_OPTIONS).toEqual(expected);
         });

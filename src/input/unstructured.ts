@@ -8,7 +8,8 @@ export const process = async (
     extensions: string[],
     limit: number | undefined,
     logger: Logger,
-    callback: (file: string) => Promise<void>
+    callback: (file: string) => Promise<void>,
+    concurrency?: number
 ): Promise<number> => {
     const storage = Storage.create({ log: logger.debug });
 
@@ -44,7 +45,7 @@ export const process = async (
                 logger.error('Error processing file %s: %s', file, error);
             }
         }
-    }, { pattern: filePattern, limit });
+    }, { pattern: filePattern, limit, concurrency } as { pattern: string, limit?: number, concurrency?: number });
 
     return fileCount;
 };

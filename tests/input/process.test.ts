@@ -35,6 +35,7 @@ describe('Input Processing', () => {
             extensions: ['txt'],
             timezone: 'UTC',
             recursive: false,
+            concurrency: 1,
         };
         mockArgs = {
             start: undefined,
@@ -95,7 +96,8 @@ describe('Input Processing', () => {
             mockFeatures,
             mockLogger,
             mockConfig.inputDirectory,
-            mockCallback
+            mockCallback,
+            1,
         );
         expect(mockProcessUnstructuredInput).not.toHaveBeenCalled();
         expect(mockLogger.info).toHaveBeenCalledWith('Processed %d files matching criteria.', expectedFileCount);
@@ -117,7 +119,8 @@ describe('Input Processing', () => {
             mockConfig.extensions,
             undefined,
             mockLogger,
-            mockCallback
+            mockCallback,
+            1,
         );
         expect(mockProcessStructuredInput).not.toHaveBeenCalled();
         expect(mockLogger.info).toHaveBeenCalledWith('Processed %d files matching criteria.', expectedFileCount);
@@ -139,7 +142,8 @@ describe('Input Processing', () => {
             expect.anything(), // features
             expect.anything(), // logger
             expect.anything(), // inputDirectory
-            expect.anything()  // callback
+            expect.anything(), // callback
+            1,
         );
     });
 
@@ -156,7 +160,8 @@ describe('Input Processing', () => {
             ['.csv', '.json'], // extensions
             undefined, // limit
             expect.anything(), // logger
-            expect.anything()  // callback
+            expect.anything(), // callback
+            1,
         );
     });
 });

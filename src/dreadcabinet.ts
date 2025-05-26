@@ -4,7 +4,7 @@ import { applyDefaults } from './defaults';
 import { read } from './read';
 import { validate } from './validate';
 
-import { ALLOWED_EXTENSIONS, ALLOWED_INPUT_FILENAME_OPTIONS, ALLOWED_INPUT_STRUCTURES, ALLOWED_OUTPUT_FILENAME_OPTIONS, ALLOWED_OUTPUT_STRUCTURES, DEFAULT_EXTENSIONS, DEFAULT_INPUT_DIRECTORY, DEFAULT_INPUT_FILENAME_OPTIONS, DEFAULT_INPUT_STRUCTURE, DEFAULT_OUTPUT_DIRECTORY, DEFAULT_OUTPUT_FILENAME_OPTIONS, DEFAULT_OUTPUT_STRUCTURE, DEFAULT_RECURSIVE, DEFAULT_TIMEZONE } from './constants';
+import { ALLOWED_EXTENSIONS, ALLOWED_INPUT_FILENAME_OPTIONS, ALLOWED_INPUT_STRUCTURES, ALLOWED_OUTPUT_FILENAME_OPTIONS, ALLOWED_OUTPUT_STRUCTURES, DEFAULT_CONCURRENCY, DEFAULT_EXTENSIONS, DEFAULT_INPUT_DIRECTORY, DEFAULT_INPUT_FILENAME_OPTIONS, DEFAULT_INPUT_STRUCTURE, DEFAULT_OUTPUT_DIRECTORY, DEFAULT_OUTPUT_FILENAME_OPTIONS, DEFAULT_OUTPUT_STRUCTURE, DEFAULT_RECURSIVE, DEFAULT_TIMEZONE } from './constants';
 import { z } from 'zod';
 import { create as createOperator } from './operate';
 import { wrapLogger } from './logger';
@@ -22,6 +22,7 @@ export interface Args {
     start?: string; // Start date string
     end?: string;   // End date string
     limit?: number; // Limit the number of files to process
+    concurrency?: number; // Concurrency level for processing files
 }
 
 export type Feature = 'input' | 'output' | 'structured-output' | 'structured-input' | 'extensions';
@@ -56,6 +57,7 @@ export interface DefaultOptions {
     startDate?: string;
     endDate?: string;
     limit?: number;
+    concurrency?: number;
 }
 
 export interface AllowedOptions {
@@ -93,6 +95,7 @@ export const DEFAULT_APP_OPTIONS: DefaultOptions = {
     outputStructure: DEFAULT_OUTPUT_STRUCTURE,
     outputFilenameOptions: DEFAULT_OUTPUT_FILENAME_OPTIONS,
     extensions: DEFAULT_EXTENSIONS,
+    concurrency: DEFAULT_CONCURRENCY,
 }
 
 export const DEFAULT_ALLOWED_OPTIONS: AllowedOptions = {
@@ -139,6 +142,7 @@ export const ConfigSchema = z.object({
     outputFilenameOptions: z.array(FilenameOptionSchema).optional(),
     extensions: z.array(z.string()).optional(),
     limit: z.number().optional(),
+    concurrency: z.number().optional(),
 });
 
 export interface DateRange {
@@ -149,7 +153,7 @@ export interface DateRange {
 export type Config = z.infer<typeof ConfigSchema>;
 
 export interface Operator {
-    process: (callback: (file: string) => Promise<void>, dateRange?: Partial<DateRange>) => Promise<void>;
+    process: (callback: (file: string) => Promise<void>, dateRange?: Partial<DateRange>, concurrency?: number) => Promise<void>;
     constructFilename: (createDate: Date, type: string, hash: string, options?: { subject?: string }) => Promise<string>;
     constructOutputDirectory: (createDate: Date) => Promise<string>;
 }

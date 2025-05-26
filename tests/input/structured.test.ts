@@ -360,5 +360,57 @@ describe('structured.ts', () => {
             expect(fileCount).toBe(2);
             expect(callback).toHaveBeenCalledTimes(2);
         });
+
+        it('should process files with concurrency option', async () => {
+            const structured = await importStructured();
+            const callback = jest.fn(async () => {
+                // Simulate async work
+                await new Promise(res => setTimeout(res, 10));
+            }) as unknown as FileCallback;
+            const features: Feature[] = [];
+            const extensions = ['txt', 'md', 'json'];
+            const concurrency = 2;
+            let maxParallel = 0;
+            let currentParallel = 0;
+
+            // Patch the mock forEachFileIn to simulate concurrency
+            const storageModule = await import('../../src/util/storage');
+            const mockFiles = [
+                '/input/2022/01/01/1200-test.txt',
+                '/input/2022/02/15/0830-file.md',
+                '/input/2023/01/01/0000-sample.json',
+            ];
+            (storageModule.create as jest.Mock).mockReturnValue({
+                forEachFileIn: jest.fn(async (dir: string, cb: (file: string) => Promise<void>, options: any) => {
+                    expect(options?.concurrency).toBe(concurrency);
+                    const promises = mockFiles.map(async (file) => {
+                        currentParallel++;
+                        if (currentParallel > maxParallel) maxParallel = currentParallel;
+                        await cb(file);
+                        currentParallel--;
+                    });
+                    await Promise.all(promises);
+                })
+            });
+
+            const fileCount = await structured.process(
+                'day',
+                ['time'],
+                extensions,
+                'UTC',
+                new Date('2022-01-01'),
+                new Date('2023-01-01'),
+                undefined,
+                features,
+                mockLogger,
+                '/input',
+                callback,
+                concurrency
+            );
+
+            expect(fileCount).toBe(2); // Only files in range
+            expect(callback).toHaveBeenCalledTimes(2);
+            expect(maxParallel).toBeGreaterThan(1); // Should have parallelism
+        });
     });
 });

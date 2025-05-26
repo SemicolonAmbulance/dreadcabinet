@@ -105,4 +105,37 @@ describe('Input: Create', () => {
             }
         );
     });
+
+    test('process method should pass concurrency option when provided', async () => {
+        const inputModule = create(mockConfig, mockOptions);
+        await inputModule.process(mockCallback, {});
+
+        expect(mockProcess).toHaveBeenCalledWith(
+            mockConfig,
+            mockOptions.features,
+            mockOptions.logger,
+            mockCallback,
+            {
+                start: undefined,
+                end: undefined,
+            }
+        );
+    });
+
+    test('process method should pass concurrency as undefined when not provided', async () => {
+        const inputModule = create(mockConfig, mockOptions);
+        await inputModule.process(mockCallback);
+
+        expect(mockProcess).toHaveBeenCalledWith(
+            mockConfig,
+            mockOptions.features,
+            mockOptions.logger,
+            mockCallback,
+            {
+                start: undefined,
+                end: undefined,
+                concurrency: undefined,
+            }
+        );
+    });
 });

@@ -25,6 +25,7 @@ export const DATE_FORMAT_MILLISECONDS = 'SSS';
 export const DEFAULT_RECURSIVE = false;
 export const DEFAULT_INPUT_DIRECTORY = './';
 export const DEFAULT_OUTPUT_DIRECTORY = './';
+export const DEFAULT_CONCURRENCY = 1;
 
 export const DEFAULT_OUTPUT_STRUCTURE = 'month' as FilesystemStructure;
 export const DEFAULT_OUTPUT_FILENAME_OPTIONS = ['date', 'subject'] as FilenameOption[];

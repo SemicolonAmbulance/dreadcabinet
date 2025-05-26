@@ -1,5 +1,5 @@
 import { Config } from './dreadcabinet';
-import { DEFAULT_EXTENSIONS, DEFAULT_INPUT_DIRECTORY, DEFAULT_INPUT_FILENAME_OPTIONS, DEFAULT_INPUT_STRUCTURE, DEFAULT_OUTPUT_DIRECTORY, DEFAULT_OUTPUT_FILENAME_OPTIONS, DEFAULT_OUTPUT_STRUCTURE, DEFAULT_RECURSIVE, DEFAULT_TIMEZONE } from './constants';
+import { DEFAULT_CONCURRENCY, DEFAULT_EXTENSIONS, DEFAULT_INPUT_DIRECTORY, DEFAULT_INPUT_FILENAME_OPTIONS, DEFAULT_INPUT_STRUCTURE, DEFAULT_OUTPUT_DIRECTORY, DEFAULT_OUTPUT_FILENAME_OPTIONS, DEFAULT_OUTPUT_STRUCTURE, DEFAULT_RECURSIVE, DEFAULT_TIMEZONE } from './constants';
 import { DefaultOptions, Feature } from './dreadcabinet';
 
 export const applyDefaults = (config: Partial<Config>, features: Feature[], defaults: DefaultOptions): Config => {
@@ -11,6 +11,7 @@ export const applyDefaults = (config: Partial<Config>, features: Feature[], defa
     if (features.includes('input')) {
         configWithDefaults.recursive = config.recursive === undefined ? (defaults?.recursive ?? DEFAULT_RECURSIVE) : config.recursive;
         configWithDefaults.inputDirectory = config.inputDirectory || (defaults?.inputDirectory || DEFAULT_INPUT_DIRECTORY);
+        configWithDefaults.concurrency = config.concurrency || (defaults?.concurrency || DEFAULT_CONCURRENCY);
     }
     if (features.includes('output')) {
         configWithDefaults.outputDirectory = config.outputDirectory || (defaults?.outputDirectory || DEFAULT_OUTPUT_DIRECTORY);

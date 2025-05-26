@@ -358,6 +358,7 @@ export const process = async (
     logger: Logger,
     inputDirectory: string,
     callback: (file: string, date?: Date) => Promise<void>,
+    concurrency?: number
 ): Promise<number> => {
     const storage = Storage.create({ log: logger.debug });
     const dateRange = calculateDateRange(timezone, start, end);
@@ -403,7 +404,7 @@ export const process = async (
         if (processed) {
             fileCount++;
         }
-    }, { pattern: filePattern, limit });
+    }, { pattern: filePattern, limit, concurrency } as { pattern: string, limit?: number, concurrency?: number });
 
     return fileCount;
 }
