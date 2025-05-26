@@ -1,5 +1,5 @@
 import { Config, DefaultOptions, Feature } from '../src/dreadcabinet';
-import { DEFAULT_EXTENSIONS, DEFAULT_INPUT_DIRECTORY, DEFAULT_INPUT_FILENAME_OPTIONS, DEFAULT_INPUT_STRUCTURE, DEFAULT_OUTPUT_DIRECTORY, DEFAULT_OUTPUT_FILENAME_OPTIONS, DEFAULT_OUTPUT_STRUCTURE, DEFAULT_RECURSIVE, DEFAULT_TIMEZONE } from '../src/constants';
+import { DEFAULT_CONCURRENCY, DEFAULT_EXTENSIONS, DEFAULT_INPUT_DIRECTORY, DEFAULT_INPUT_FILENAME_OPTIONS, DEFAULT_INPUT_STRUCTURE, DEFAULT_OUTPUT_DIRECTORY, DEFAULT_OUTPUT_FILENAME_OPTIONS, DEFAULT_OUTPUT_STRUCTURE, DEFAULT_RECURSIVE, DEFAULT_TIMEZONE } from '../src/constants';
 import { applyDefaults } from '../src/defaults';
 
 // No external modules with side effects to mock for defaults.ts logic itself,
@@ -26,6 +26,7 @@ describe('applyDefaults', () => {
             outputStructure: DEFAULT_OUTPUT_STRUCTURE,
             outputFilenameOptions: DEFAULT_OUTPUT_FILENAME_OPTIONS,
             extensions: DEFAULT_EXTENSIONS,
+            concurrency: DEFAULT_CONCURRENCY,
             inputStructure: DEFAULT_INPUT_STRUCTURE,
             inputFilenameOptions: DEFAULT_INPUT_FILENAME_OPTIONS,
         });
@@ -49,6 +50,7 @@ describe('applyDefaults', () => {
             outputStructure: 'year', // Provided
             outputFilenameOptions: DEFAULT_OUTPUT_FILENAME_OPTIONS, // Default (as full array is provided, not partial)
             extensions: ['eml'], // Provided
+            concurrency: 1,
             inputStructure: DEFAULT_INPUT_STRUCTURE, // Default
             inputFilenameOptions: ['subject'], // Provided
         });
@@ -61,6 +63,7 @@ describe('applyDefaults', () => {
             timezone: DEFAULT_TIMEZONE, // Always applied
             recursive: DEFAULT_RECURSIVE, // Input feature
             inputDirectory: DEFAULT_INPUT_DIRECTORY, // Input feature
+            concurrency: 1,
             extensions: DEFAULT_EXTENSIONS, // Extensions feature
             // Output related fields should be undefined
             outputDirectory: undefined,
@@ -89,6 +92,7 @@ describe('applyDefaults', () => {
             outputFilenameOptions: undefined,
             // Extensions related fields should be undefined
             extensions: undefined,
+            concurrency: 1,
             // Input structure related fields should be undefined
             inputStructure: undefined,
             inputFilenameOptions: undefined,
@@ -109,6 +113,7 @@ describe('applyDefaults', () => {
         };
         const result = applyDefaults(baseConfig, allFeatures, customDefaults);
         expect(result).toEqual({
+            concurrency: 1,
             timezone: 'Europe/Paris',
             recursive: true,
             inputDirectory: '/default/in',
@@ -144,6 +149,7 @@ describe('applyDefaults', () => {
             outputStructure: undefined,
             outputFilenameOptions: undefined,
             extensions: undefined,
+            concurrency: 1,
             inputStructure: undefined,
             inputFilenameOptions: undefined,
         });

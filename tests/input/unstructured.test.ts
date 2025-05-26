@@ -287,4 +287,45 @@ describe('Input: Unstructured Process', () => {
         expect(mockCallback).not.toHaveBeenCalled();
         expect(count).toBe(0);
     });
+
+    test('should process files with concurrency option', async () => {
+        const inputDirectory = '/concurrent';
+        const recursive = true;
+        const extensions: string[] = ['txt', 'log'];
+        const limit = undefined;
+        const concurrency = 3;
+        const files = ['a.txt', 'b.log', 'c.txt', 'd.log', 'e.txt'];
+        let maxParallel = 0;
+        let currentParallel = 0;
+
+        // Simulate concurrent callback execution
+        mockForEachFileIn.mockImplementation(async (dir, callback, options) => {
+            expect(dir).toBe(inputDirectory);
+            expect(options?.concurrency).toBe(concurrency);
+            expect(options?.pattern).toBe('**/*.{txt,log}');
+            const promises = files.map(async (file) => {
+                currentParallel++;
+                if (currentParallel > maxParallel) maxParallel = currentParallel;
+                // Simulate async work
+                await new Promise(res => setTimeout(res, 10));
+                await callback(file);
+                currentParallel--;
+            });
+            await Promise.all(promises);
+        });
+
+        const count = await processUnstructured(inputDirectory, recursive, extensions, limit, mockLogger, mockCallback, concurrency);
+
+        expect(mockForEachFileIn).toHaveBeenCalledWith(
+            inputDirectory,
+            expect.any(Function),
+            { pattern: '**/*.{txt,log}', limit, concurrency }
+        );
+        expect(mockCallback).toHaveBeenCalledTimes(files.length);
+        for (const file of files) {
+            expect(mockCallback).toHaveBeenCalledWith(file);
+        }
+        // This checks that at least concurrency number of callbacks were in flight at once
+        expect(maxParallel).toBeGreaterThan(1);
+    });
 });

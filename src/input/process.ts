@@ -13,6 +13,11 @@ export const process = async (
         throw new Error('Input feature is not enabled, skipping input processing');
     }
 
+    const concurrency = config.concurrency;
+    if (!concurrency) {
+        throw new Error('Concurrency is not configured');
+    }
+
     const inputDirectory = config.inputDirectory;
     if (!inputDirectory) {
         throw new Error('Input directory is not configured');
@@ -26,7 +31,20 @@ export const process = async (
         if (!start || !end) {
             throw new Error('Start or end date are both required for structured input');
         } else {
-            fileCount = await processStructuredInput(config.inputStructure!, config.inputFilenameOptions!, config.extensions!, config.timezone, start, end, config.limit, features, logger, inputDirectory, callback)
+            fileCount = await processStructuredInput(
+                config.inputStructure!,
+                config.inputFilenameOptions!,
+                config.extensions!,
+                config.timezone,
+                start,
+                end,
+                config.limit,
+                features,
+                logger,
+                inputDirectory,
+                callback,
+                concurrency
+            )
         }
 
 
@@ -38,7 +56,15 @@ export const process = async (
             throw new Error('Start or end date is not allowed for unstructured input');
         }
 
-        fileCount = await processUnstructuredInput(inputDirectory, config.recursive || false, config.extensions || [], config.limit, logger, callback);
+        fileCount = await processUnstructuredInput(
+            inputDirectory,
+            config.recursive || false,
+            config.extensions || [],
+            config.limit,
+            logger,
+            callback,
+            concurrency
+        );
     }
 
     logger.info('Processed %d files matching criteria.', fileCount);

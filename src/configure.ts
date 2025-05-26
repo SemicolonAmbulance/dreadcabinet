@@ -11,8 +11,8 @@ import {
     DEFAULT_RECURSIVE,
     DEFAULT_TIMEZONE
 } from "./constants";
-import { ArgumentError } from "./error/ArgumentError";
 import { DefaultOptions, Feature } from "./dreadcabinet";
+import { ArgumentError } from "./error/ArgumentError";
 
 export { ArgumentError };
 
@@ -38,6 +38,7 @@ export const configure = async (command: Command, defaults: DefaultOptions, addD
         addOption(command, '-r, --recursive', 'recursive mode, process all files in the input directory', addDefaults, defaults?.recursive !== undefined ? defaults.recursive : DEFAULT_RECURSIVE)
         addOption(command, '-i, --input-directory <inputDirectory>', 'input directory', addDefaults, defaults?.inputDirectory || DEFAULT_INPUT_DIRECTORY)
         addOption(command, '--limit <limit>', 'limit the number of files to process', addDefaults, defaults?.limit ? defaults?.limit.toString() : undefined)
+        addOption(command, '--concurrency <concurrency>', 'concurrency level for processing files', addDefaults, defaults?.concurrency ? defaults?.concurrency.toString() : undefined)
     }
     if (features.includes('output')) {
         addOption(command, '-o, --output-directory <outputDirectory>', 'output directory', addDefaults, defaults?.outputDirectory || DEFAULT_OUTPUT_DIRECTORY)

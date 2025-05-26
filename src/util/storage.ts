@@ -25,7 +25,7 @@ export interface Utility {
     readFile: (path: string, encoding: string) => Promise<string>;
     readStream: (path: string) => Promise<fs.ReadStream>;
     writeFile: (path: string, data: string | Buffer, encoding: string) => Promise<void>;
-    forEachFileIn: (directory: string, callback: (path: string) => Promise<void>, options?: { pattern: string, limit?: number }) => Promise<void>;
+    forEachFileIn: (directory: string, callback: (path: string) => Promise<void>, options?: { pattern: string, limit?: number, concurrency?: number }) => Promise<void>;
     hashFile: (path: string, length: number) => Promise<string>;
     listFiles: (directory: string) => Promise<string[]>;
 }
@@ -114,18 +114,25 @@ export const create = (params: { log?: (message: string, ...args: any[]) => void
     const forEachFileIn = async (
         directory: string,
         callback: (file: string) => Promise<void>,
-        options: { pattern: string | string[], limit?: number } = { pattern: '*.*' },
+        options: { pattern: string | string[], limit?: number, concurrency?: number } = { pattern: '*.*' },
     ): Promise<void> => {
         try {
             let filesProcessed = 0;
             const files = await glob(options.pattern, { cwd: directory, nodir: true });
-            for (const file of files) {
-                await callback(path.join(directory, file));
-                filesProcessed++;
-                if (options.limit && filesProcessed >= options.limit) {
-                    log(`Reached limit of ${options.limit} files, stopping`);
-                    break;
+            const concurrency = options.concurrency || 1;
+            let index = 0;
+            async function worker() {
+                while (index < files.length && (!options.limit || filesProcessed < options.limit)) {
+                    const i = index++;
+                    if (options.limit && filesProcessed >= options.limit) break;
+                    await callback(path.join(directory, files[i]));
+                    filesProcessed++;
                 }
+            }
+            const workers = Array.from({ length: concurrency }, () => worker());
+            await Promise.all(workers);
+            if (options.limit && filesProcessed >= options.limit) {
+                log(`Reached limit of ${options.limit} files, stopping`);
             }
         } catch (err: any) {
             throw new Error(`Failed to glob pattern ${options.pattern} in ${directory}: ${err.message}`);
