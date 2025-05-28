@@ -2,7 +2,8 @@
     "name": "@theunwalked/dreadcabinet",
     "version": "0.0.2",
     "description": "dreadcabinet organizes the chaos.",
-    "main": "dist/dreadcabinet.js",
+    "main": "dist/dreadcabinet.cjs",
+    "module": "dist/dreadcabinet.js",
     "type": "module",
     "repository": {
         "type": "git",
@@ -11,12 +12,13 @@
     "packageManager": "pnpm@10.11.0",
     "exports": {
         ".": {
+            "types": "./dist/dreadcabinet.d.ts",
             "import": "./dist/dreadcabinet.js",
-            "types": "./dist/dreadcabinet.d.ts"
+            "require": "./dist/dreadcabinet.cjs"
         }
     },
     "scripts": {
-        "build": "tsc --noEmit && vite build",
+        "build": "vite build",
         "start": "dist/main.js",
         "dev": "vite",
         "watch": "vite build --watch",
