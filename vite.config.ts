@@ -1,9 +1,7 @@
 import { defineConfig } from 'vite';
 import { VitePluginNode } from 'vite-plugin-node';
 import replace from '@rollup/plugin-replace';
-// import { visualizer } from 'rollup-plugin-visualizer';
 import { execSync } from 'child_process';
-import shebang from 'rollup-plugin-preserve-shebang';
 import dts from 'vite-plugin-dts';
 
 let gitInfo = {
@@ -40,7 +38,6 @@ const basePlugins = [
         swcOptions: {
             sourceMaps: true,
         },
-        preserveModules: true,
     }),
     // visualizer({
     //     template: 'network',
@@ -86,9 +83,6 @@ export default defineConfig({
                     preserveModules: false,
                     exports: 'named',
                 },
-            ],
-            plugins: [
-                shebang({ shebang: '#!/usr/bin/env node' }),
             ],
         },
         modulePreload: false,
