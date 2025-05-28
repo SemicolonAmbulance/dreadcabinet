@@ -1,7 +1,7 @@
 # DreadCabinet
 
 > A powerful tool that brings order to your digital chaos, one file at a time!
-> Organize, rename, and transform your notes or files based on date, subject, and other metadata—all via a single CLI command.
+> Organize, rename, and transform your notes or files based on date, subject, and other metadata—all within your own CLI applications.
 
 ## Table of Contents
 
@@ -10,6 +10,7 @@
 - [Usage](#usage)
   - [Basic Example](#basic-example)
   - [CLI Options](#cli-options)
+  - [Concurrent Processing](#concurrent-processing)
 - [Output Structures](#output-structures)
 - [Filename Options](#filename-options)
   - [Subject Extraction](#subject-extraction)
@@ -32,24 +33,31 @@
 - **Timezone support** – Convert file timestamps or metadata to a specific timezone for naming.  
 - **Extension filtering** – Restrict processing to certain file types.  
 - **No destructive operations** – Original files remain untouched; DreadCabinet only creates copies in a new directory structure.
+- **Concurrent processing** – Process multiple files in parallel for improved performance.
 
 ---
 
 ## Installation
 
 ```bash
-npm install -g dreadcabinet
-````
+npm install @theunwalked/dreadcabinet
+```
 
-*Alternatively, you can install locally in your project:*
+*Or with other package managers:*
 
 ```bash
-npm install --save dreadcabinet
+# yarn
+yarn add @theunwalked/dreadcabinet
+
+# pnpm  
+pnpm add @theunwalked/dreadcabinet
 ```
 
 ---
 
 ## Usage
+
+DreadCabinet is a library designed to be integrated into your own CLI tools. It provides powerful file organization capabilities that you can incorporate into your applications.
 
 ### Integrating with Your CLI Tool
 
@@ -101,10 +109,10 @@ await operator.process(async (file) => {
 
 ### Basic Example
 
-For example, process all Markdown notes in the current directory (non-recursively), place the output in a new folder named `organized`, and arrange them by month:
+Once you've integrated DreadCabinet into your CLI tool, users can process files with commands like:
 
 ```bash
-dreadcabinet \
+my-app \
   --input-directory . \
   --output-directory ./organized \
   --output-structure month \
@@ -112,6 +120,31 @@ dreadcabinet \
 ```
 
 This will look for all `.md` files in `.` (only the top-level directory), parse dates/subjects, and create a structured hierarchy within `./organized/`.
+
+### Concurrent Processing
+
+DreadCabinet supports concurrent processing of files to improve performance when dealing with large numbers of files. By default, files are processed sequentially (concurrency = 1), but you can increase the concurrency level:
+
+```bash
+my-app \
+  --input-directory ./notes \
+  --output-directory ./organized \
+  --concurrency 5
+```
+
+This will process up to 5 files simultaneously, which can significantly speed up processing for large file collections.
+
+When using the programmatic API, you can also specify concurrency:
+
+<!-- skip-example -->
+```javascript
+const operator = await instance.operate(config);
+await operator.process(async (file) => {
+  // Your file processing logic here
+}, { start: startDate, end: endDate }, 5); // Process 5 files concurrently
+```
+
+> **Note**: Setting concurrency too high may lead to resource exhaustion. A good rule of thumb is to set it between 2-10 depending on your system capabilities and the complexity of your file processing logic.
 
 ---
 
@@ -131,6 +164,7 @@ The `features` option takes an array of strings. The known feature flags are:
         *   `--input-directory <inputDirectory>` / `-i <inputDirectory>`
         *   `--recursive` / `-r`
         *   `--limit <limit>`
+        *   `--concurrency <concurrency>`
 
 *   **`'output'`**:
     *   Enables core output-related functionalities and CLI options.
@@ -187,7 +221,7 @@ By selectively enabling features, you can create a more streamlined DreadCabinet
 
 ## Command-Line Options
 
-Below is a summary of the main command-line flags exposed in [`src/arguments.ts`](./src/arguments.ts). All options have been verified to match the actual code behavior.
+Below is a summary of the main command-line flags that DreadCabinet exposes when integrated into your CLI application. All options have been verified to match the actual code behavior.
 
 | Option                                   | Alias | Default        | Description                                                                                           |
 | ---------------------------------------- | ----- | -------------- | ----------------------------------------------------------------------------------------------------- |
@@ -199,7 +233,8 @@ Below is a summary of the main command-line flags exposed in [`src/arguments.ts`
 | `--recursive`                            | `-r`  | `false`        | If specified, all subdirectories are also processed.                                                  |
 | `--timezone <tz>`                        |       | `Etc/UTC`      | Timezone for date/time calculations (e.g. `America/New_York`).                                        |
 | `--limit <limit>`                        |       | `undefined`    | Limit the number of files to process.                                                                 |
-| `--input-structure <type>`               |       | `none`         | Input directory structure (none/year/month/day). Used if files are already in a date-based structure. |
+| `--concurrency <concurrency>`            |       | `1`            | Number of files to process simultaneously. Higher values can improve performance.                      |
+| `--input-structure <type>`               |       | `month`        | Input directory structure (none/year/month/day). Used if files are already in a date-based structure. |
 | `--input-filename-options [options...]`  |       | `date subject` | Input filename format options (space-separated list of: date,time,subject).                           |
 | `--start <date>`                         |       | `undefined`    | Start date filter (YYYY-MM-DD).                                                                       |
 | `--end <date>`                           |       | `undefined`    | End date filter (YYYY-MM-DD), defaults to today.                                                      |
@@ -224,7 +259,7 @@ Below is a summary of the main command-line flags exposed in [`src/arguments.ts`
    Controls which components appear in each filename. For example, `--output-filename-options date subject time` would produce filenames containing date, subject, and time. More details in [Filename Options](#filename-options).
 
 5. **`--extensions`** (default = `md`)
-   Only files with these extensions (no leading dot) are processed. For multiple extensions, separate them with spaces (e.g. `--extensions md txt`).
+   Only files with these extensions (no leading dot) are processed. For multiple extensions, separate them with spaces (e.g. `--extensions md txt`). The allowed extensions by default are `md` and `txt`.
 
 6. **`--recursive`** (default = `false`)
    When set, DreadCabinet descends into all subfolders of `--input-directory`. Otherwise, it processes only the top-level directory.
@@ -235,16 +270,19 @@ Below is a summary of the main command-line flags exposed in [`src/arguments.ts`
 8. **`--limit <limit>`** (default = `undefined`)
     Optionally limit the total number of files that will be processed.
 
-9. **`--input-structure <type>`** (default = `none`)
+9. **`--concurrency <concurrency>`** (default = `1`)
+    Sets the number of files to process simultaneously. The default value of 1 means files are processed sequentially. Increasing this value allows multiple files to be processed in parallel, which can significantly improve performance when dealing with large numbers of files. However, setting it too high may lead to system resource exhaustion. Typical values range from 2 to 10, depending on your system's capabilities and the complexity of the file processing operations.
+
+10. **`--input-structure <type>`** (default = `month`)
     Describes the existing directory structure if the input files are already organized by date (e.g., `year`, `month`, `day`). This helps DreadCabinet parse dates from paths if not found in metadata or filenames.
 
-10. **`--input-filename-options [options...]`** (default = `date subject`)
+11. **`--input-filename-options [options...]`** (default = `date subject`)
     Specifies the format of input filenames if they already contain structured information like date, time, or subject. This allows DreadCabinet to parse these details directly from the filenames.
 
-11. **`--start <date>`** (default = `undefined`)
+12. **`--start <date>`** (default = `undefined`)
     Filters files to include only those with a date on or after the specified start date (format `YYYY-MM-DD`).
 
-12. **`--end <date>`** (default = `undefined`)
+13. **`--end <date>`** (default = `undefined`)
     Filters files to include only those with a date on or before the specified end date (format `YYYY-MM-DD`). If not provided, it defaults to the current day.
 
 ---
@@ -269,7 +307,8 @@ import { z } from 'zod'; // Assuming Zod is used for schema validation, similar 
 // For this example, we'll assume no extra app-specific configs beyond DreadCabinet's.
 // If you had them, you'd define them here:
 const ConfigSchema = z.object({
-   myCustomOption: z.string().optional()
+   myCustomOption: z.string().optional(),
+   verbose: z.boolean().optional(),
 });
 
 const clean = (obj: any) => {
@@ -282,6 +321,7 @@ type Config = z.infer<typeof ConfigSchema> & DreadCabinet.Config & Cardigantime.
 
 const DEFAULT_CONFIG =  {
   myCustomOption: 'my-default',
+  verbose: false,
 }
 
 async function main() {
@@ -290,7 +330,7 @@ async function main() {
     defaults: {
       // Your default DreadCabinet settings
       // e.g., timezone: 'America/New_York', extensions: ['md']
-      ...DreadCabinet.DEFAULT_OPTIONS, // Or use DreadCabinet's provided defaults
+      ...DreadCabinet.DEFAULT_OPTIONS.defaults, // Or use DreadCabinet's provided defaults
     },
     allowed: {
       // Define allowed values if needed, e.g., for outputStructures
@@ -394,7 +434,8 @@ Below is an example of a `config.yaml` file that mirrors all the available comma
 inputDirectory: "./my_notes"       # Corresponds to --input-directory
 recursive: true                   # Corresponds to --recursive
 limit: 100                        # Corresponds to --limit (e.g., process only 100 files)
-inputStructure: "none"            # Corresponds to --input-structure (e.g., none, year, month, day)
+concurrency: 5                    # Corresponds to --concurrency (e.g., process 5 files simultaneously)
+inputStructure: "month"           # Corresponds to --input-structure (e.g., none, year, month, day)
 inputFilenameOptions:             # Corresponds to --input-filename-options
   - "date"
   - "subject"
@@ -413,7 +454,6 @@ outputFilenameOptions:            # Corresponds to --output-filename-options
 extensions:                       # Corresponds to --extensions
   - "md"
   - "txt"
-  - "markdown"
 timezone: "America/New_York"      # Corresponds to --timezone
 
 # Note: For options that are simple flags (like --recursive),
@@ -474,26 +514,28 @@ The `--output-filename-options` flag determines what elements appear in each fin
 
 ### Subject Extraction
 
-DreadCabinet attempts to parse a "subject" from each file by looking for:
+Applications using DreadCabinet can implement subject extraction from files. Common approaches include:
 
-1. **YAML front matter** – If a file has YAML at the top, and it contains a `title` or `subject` field, that is used.
-2. **First line/heading** – If no YAML front matter is found, DreadCabinet uses the first non-empty line or first Markdown heading (e.g. `# Some Title`) as the subject.
-3. **Fallback** – If no textual subject can be extracted, DreadCabinet either omits the subject entirely or uses a fallback (like the original filename without extension).
+1. **YAML front matter** – Parse YAML at the top of files for `title` or `subject` fields
+2. **First line/heading** – Use the first non-empty line or first Markdown heading (e.g. `# Some Title`)
+3. **Fallback** – Use the original filename without extension
 
-Any non-alphanumeric or filesystem-unsafe characters (e.g. `\`, `/`, `*`) are removed or replaced with `-`. Spaces are preserved by default, so you might see filenames like `2025-05-13 My Meeting Notes.md`.
+When implementing subject extraction, ensure any non-alphanumeric or filesystem-unsafe characters (e.g. `\`, `/`, `*`) are removed or replaced. DreadCabinet provides the `subject` option in `output-filename-options` to include subjects in filenames.
 
 ### Date Detection
 
-DreadCabinet determines each file's "date" as follows:
+Applications using DreadCabinet can implement various date detection strategies:
 
-1. **Metadata or front matter** – If the YAML front matter includes a valid `date` field, use that.
-2. **Inline date** – Some users place a date in the first line. If DreadCabinet can parse it (e.g., `2025-05-10`), it uses that.
-3. **File timestamp** – If no date is found in the content or metadata, DreadCabinet uses the file's last-modified time.
-4. **Timezone** – Whichever date is found is converted to the user-specified `--timezone` for final filenames and folder structures.
+1. **Metadata or front matter** – Parse YAML front matter for `date` fields
+2. **Inline date** – Extract dates from file content (e.g., `2025-05-10`)
+3. **File timestamp** – Use the file's last-modified time as a fallback
+4. **Timezone conversion** – Convert dates to the user-specified `--timezone`
+
+DreadCabinet uses these dates (provided by your application) to organize files into date-based folder structures and filenames.
 
 ### Collision Handling
 
-If two files end up with the **exact same** filename (e.g., same date, same subject), DreadCabinet appends a short identifier (hash or incremented counter) to one of them, ensuring no overwriting occurs. You might see something like:
+If two files end up with the **exact same** filename (e.g., same date, same subject), DreadCabinet appends an extra identifier (hash or incremented counter) to one of them, ensuring no overwriting occurs. You might see something like:
 
 ```
 2025-05-13 Meeting.md
@@ -539,19 +581,20 @@ DreadCabinet includes several features that can be toggled via flags or omitted 
 
    * **Controlled** by `--output-structure` (`none|year|month|day`)
 
-Each of these features corresponds to code in [`src/arguments.ts`](./src/arguments.ts) and the relevant file-handling modules. They can be combined or omitted based on your workflow.
+Each of these features can be combined or omitted based on your workflow.
 
 ---
 
 ## Environment Variables
 
-Although DreadCabinet primarily uses CLI flags, it can also load environment variables if you supply a `.env` file. For example, if you want to set a default timezone, you could add:
+Applications using DreadCabinet can implement environment variable support to set default values. For example, your application could use a `.env` file with variables like:
 
 ```
 DREADCABINET_TIMEZONE="America/Los_Angeles"
+DREADCABINET_OUTPUT_DIRECTORY="./organized"
 ```
 
-to your `.env`. (Exact variable names and usage may vary if you have code that explicitly references them. Check the code or issues for details.)
+Then load these values and pass them to DreadCabinet through the configuration options. This approach allows users to set defaults without always specifying command-line arguments.
 
 ---
 
@@ -564,14 +607,14 @@ to your `.env`. (Exact variable names and usage may vary if you have code that e
    Pass them as space-separated arguments to `--extensions`. For example:
 
    ```bash
-   dreadcabinet --extensions md txt markdown
+   my-app --extensions md txt markdown
    ```
 
 3. **What if two files produce the same date and subject?**
    DreadCabinet detects collisions and appends an extra identifier so files don't overwrite each other.
 
 4. **Does DreadCabinet parse all Markdown front matter fields?**
-   Currently, it specifically looks for `title` (and occasionally `date` or `subject` in front matter). Extra fields are ignored unless you modify the code or open a feature request.
+   DreadCabinet itself doesn't parse file content or front matter. Applications using DreadCabinet can implement their own parsing logic to extract metadata like titles, dates, or subjects from files, then use this information when organizing files.
 
 5. **Why is the filename missing the full date when I use `--output-structure month/day`?**
    DreadCabinet automatically omits redundant parts of the date in filenames if it's already included in the directory path. This prevents something like `2025/05/13/2025-05-13 My Note.md`. You can customize or override this logic if you prefer.
