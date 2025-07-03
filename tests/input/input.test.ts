@@ -1,11 +1,11 @@
-import { jest } from '@jest/globals';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import type { Config, Args, Options, Logger, Feature } from '../../src/dreadcabinet';
 import type * as ProcessModule from '../../src/input/process';
 
 // Mock the process function from the './process' module
-const mockProcess = jest.fn<typeof ProcessModule.process>();
+const mockProcess = vi.fn<typeof ProcessModule.process>();
 
-jest.unstable_mockModule('../../src/input/process', () => ({
+vi.mock('../../src/input/process', () => ({
     process: mockProcess,
 }));
 
@@ -18,19 +18,19 @@ describe('Input: Create', () => {
     let mockOptions: Options;
     let mockLogger: Logger;
     let mockFeatures: Feature[];
-    let mockCallback: jest.Mock<(file: string, date?: Date) => Promise<void>>;
+    let mockCallback: ReturnType<typeof vi.fn<(file: string, date?: Date) => Promise<void>>>;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         // Setup mock objects for each test
         mockLogger = {
-            info: jest.fn(),
-            debug: jest.fn(),
-            warn: jest.fn(),
-            error: jest.fn(),
-            verbose: jest.fn(),
-            silly: jest.fn(),
+            info: vi.fn(),
+            debug: vi.fn(),
+            warn: vi.fn(),
+            error: vi.fn(),
+            verbose: vi.fn(),
+            silly: vi.fn(),
         };
 
         mockFeatures = ['input']; // Provide a basic mock features object
@@ -60,7 +60,7 @@ describe('Input: Create', () => {
         };
 
         // @ts-ignore - Mock the callback function passed to the process method
-        mockCallback = jest.fn().mockResolvedValue(undefined);
+        mockCallback = vi.fn().mockResolvedValue(undefined);
     });
 
     test('should return an object with a process method', () => {
