@@ -1,6 +1,6 @@
 {
     "name": "@theunwalked/dreadcabinet",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "dreadcabinet organizes the chaos.",
     "main": "dist/dreadcabinet.cjs",
     "module": "dist/dreadcabinet.js",
