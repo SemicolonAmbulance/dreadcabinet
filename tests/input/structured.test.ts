@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Feature, Logger } from 'dreadcabinet';
 import * as path from 'path';
 
@@ -6,23 +6,23 @@ import * as path from 'path';
 type FileCallback = (file: string, date?: Date) => Promise<void>;
 
 // Mock dependencies with proper type annotations
-jest.unstable_mockModule('../../src/util/dates', () => ({
-    create: jest.fn(() => ({
-        now: jest.fn((): Date => new Date('2023-01-01T00:00:00Z')),
-        subDays: jest.fn((date: Date, days: number): Date => {
+vi.mock('../../src/util/dates', () => ({
+    create: vi.fn(() => ({
+        now: vi.fn((): Date => new Date('2023-01-01T00:00:00Z')),
+        subDays: vi.fn((date: Date, days: number): Date => {
             const result = new Date(date);
             result.setUTCDate(result.getUTCDate() - days);
             return result;
         }),
-        parse: jest.fn((date: Date | string): Date => new Date(date)),
-        format: jest.fn((): string => '2023-01-01'),
-        isBefore: jest.fn((date1: Date, date2: Date): boolean => date1 < date2),
+        parse: vi.fn((date: Date | string): Date => new Date(date)),
+        format: vi.fn((): string => '2023-01-01'),
+        isBefore: vi.fn((date1: Date, date2: Date): boolean => date1 < date2),
     })),
 }));
 
-jest.unstable_mockModule('../../src/util/storage', () => ({
-    create: jest.fn(() => ({
-        forEachFileIn: jest.fn(async (dir: string, callback: (file: string) => Promise<void>, options: any): Promise<void> => {
+vi.mock('../../src/util/storage', () => ({
+    create: vi.fn(() => ({
+        forEachFileIn: vi.fn(async (dir: string, callback: (file: string) => Promise<void>, options: any): Promise<void> => {
             const mockFiles = [
                 `${dir}/2022/01/01/1200-test.txt`,
                 `${dir}/2022/02/15/0830-file.md`,
@@ -42,17 +42,17 @@ const importStructured = async () => {
 
 // Create a mock logger
 const mockLogger: Logger = {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    verbose: jest.fn(),
-    silly: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    verbose: vi.fn(),
+    silly: vi.fn(),
 };
 
 describe('structured.ts', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     describe('getFilePattern', () => {
@@ -264,7 +264,7 @@ describe('structured.ts', () => {
     describe('processStructuredFile', () => {
         it('should process file when date is in range', async () => {
             const structured = await importStructured();
-            const callback = jest.fn() as unknown as FileCallback;
+            const callback = vi.fn() as unknown as FileCallback;
             const dateRange = {
                 start: new Date('2022-01-01'),
                 end: new Date('2023-01-01')
@@ -290,7 +290,7 @@ describe('structured.ts', () => {
 
         it('should skip file when date is out of range', async () => {
             const structured = await importStructured();
-            const callback = jest.fn() as unknown as FileCallback;
+            const callback = vi.fn() as unknown as FileCallback;
             const dateRange = {
                 start: new Date('2023-01-01'),
                 end: new Date('2023-02-01')
@@ -313,7 +313,7 @@ describe('structured.ts', () => {
 
         it('should skip if file path cannot be parsed', async () => {
             const structured = await importStructured();
-            const callback = jest.fn() as unknown as FileCallback;
+            const callback = vi.fn() as unknown as FileCallback;
             const dateRange = {
                 start: new Date('2022-01-01'),
                 end: new Date('2023-01-01')
@@ -338,7 +338,7 @@ describe('structured.ts', () => {
     describe('process', () => {
         it('should process files in directory', async () => {
             const structured = await importStructured();
-            const callback = jest.fn() as unknown as FileCallback;
+            const callback = vi.fn() as unknown as FileCallback;
             const features: Feature[] = [];
             const extensions = ['txt', 'md', 'json'];
 
@@ -363,7 +363,7 @@ describe('structured.ts', () => {
 
         it('should process files with concurrency option', async () => {
             const structured = await importStructured();
-            const callback = jest.fn(async () => {
+            const callback = vi.fn(async () => {
                 // Simulate async work
                 await new Promise(res => setTimeout(res, 10));
             }) as unknown as FileCallback;
@@ -380,8 +380,8 @@ describe('structured.ts', () => {
                 '/input/2022/02/15/0830-file.md',
                 '/input/2023/01/01/0000-sample.json',
             ];
-            (storageModule.create as jest.Mock).mockReturnValue({
-                forEachFileIn: jest.fn(async (dir: string, cb: (file: string) => Promise<void>, options: any) => {
+            (storageModule.create as ReturnType<typeof vi.fn>).mockReturnValue({
+                forEachFileIn: vi.fn(async (dir: string, cb: (file: string) => Promise<void>, options: any) => {
                     expect(options?.concurrency).toBe(concurrency);
                     const promises = mockFiles.map(async (file) => {
                         currentParallel++;

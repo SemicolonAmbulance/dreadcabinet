@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { Command } from 'commander';
 import type { DefaultOptions, Feature } from '../src/dreadcabinet';
 import {
@@ -18,14 +18,14 @@ import {
 // We don't need to mock 'commander' itself, but we need a mock Command instance
 // to spy on the 'option' method calls.
 const mockCommand = {
-    option: jest.fn(),
+    option: vi.fn(),
 } as unknown as Command; // Type assertion to satisfy configure's signature
 
 // Reset the mock before each test
 beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Reset the calls on the mock command object
-    (mockCommand.option as jest.Mock).mockClear();
+    (mockCommand.option as ReturnType<typeof vi.fn>).mockClear();
 });
 
 
@@ -54,14 +54,14 @@ describe('configure', () => {
 
     // Helper to check if an option was added
     const expectOptionAdded = (flag: string, description: string, defaultValue?: any) => {
-        const calls = (mockCommand.option as jest.Mock).mock.calls;
+        const calls = (mockCommand.option as ReturnType<typeof vi.fn>).mock.calls;
         // Check for call with default value (used when addDefaults = true)
         expect(calls).toContainEqual([flag, description, defaultValue]);
     };
 
     // Helper to check if an option was added with default in description
     const expectOptionAddedWithDescDefault = (flag: string, description: string, defaultValue?: any) => {
-        const calls = (mockCommand.option as jest.Mock).mock.calls;
+        const calls = (mockCommand.option as ReturnType<typeof vi.fn>).mock.calls;
         const defaultDesc = defaultValue === undefined ? 'undefined' : Array.isArray(defaultValue) ? defaultValue.join(',') : defaultValue;
         const expectedDescription = `${description} (default: ${defaultDesc})`;
         // Check for call with description containing the default (used when addDefaults = false)
@@ -70,7 +70,7 @@ describe('configure', () => {
 
     // Helper to check if an option was NOT added
     const expectOptionNotAdded = (flag: string) => {
-        const calls = (mockCommand.option as jest.Mock).mock.calls;
+        const calls = (mockCommand.option as ReturnType<typeof vi.fn>).mock.calls;
         expect(calls).not.toContainEqual(expect.arrayContaining([flag]));
     };
 

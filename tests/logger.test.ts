@@ -1,20 +1,20 @@
-import { jest } from '@jest/globals';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { PROGRAM_NAME } from '../src/constants';
 import { wrapLogger } from '../src/logger';
 import type { Logger } from 'dreadcabinet';
 
 // Mock the dreadcabinet module
-jest.unstable_mockModule('dreadcabinet', () => ({
-    Logger: jest.fn(),
+vi.mock('dreadcabinet', () => ({
+    Logger: vi.fn(),
 }));
 
 // Mock the constants module
-jest.unstable_mockModule('../src/constants', () => ({
+vi.mock('../src/constants', () => ({
     PROGRAM_NAME: 'test-program',
 }));
 
 describe('wrapLogger', () => {
-    let mockLogger: jest.Mocked<Logger>;
+    let mockLogger: Logger & { [K in keyof Logger]: ReturnType<typeof vi.fn> };
     let wrappedLogger: Logger;
 
     beforeEach(async () => {
@@ -24,19 +24,19 @@ describe('wrapLogger', () => {
         const { wrapLogger: actualWrapLogger } = await import('../src/logger');
 
         mockLogger = {
-            debug: jest.fn(),
-            info: jest.fn(),
-            warn: jest.fn(),
-            error: jest.fn(),
-            verbose: jest.fn(),
-            silly: jest.fn(),
-        } as jest.Mocked<Logger>;
+            debug: vi.fn(),
+            info: vi.fn(),
+            warn: vi.fn(),
+            error: vi.fn(),
+            verbose: vi.fn(),
+            silly: vi.fn(),
+        } as Logger & { [K in keyof Logger]: ReturnType<typeof vi.fn> };
 
         wrappedLogger = actualWrapLogger(mockLogger);
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
     });
 
     it('should wrap the debug method and prepend PROGRAM_NAME', () => {

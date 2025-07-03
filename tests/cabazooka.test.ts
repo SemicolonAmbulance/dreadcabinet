@@ -1,41 +1,41 @@
-import { jest } from '@jest/globals';
+import { vi, describe, test, beforeEach, expect } from 'vitest';
 import type { Command } from 'commander';
 import type { Config, Args, Feature, FilesystemStructure, Logger, Operator } from '../src/dreadcabinet';
 import type * as ConfigureModule from '../src/configure';
 import type * as DefaultsModule from '../src/defaults';
 import type * as ReadModule from '../src/read';
 import type * as ValidateModule from '../src/validate';
-import type * as OperateModule from 'operate'; // Assuming 'operate' is the package name
+import type * as OperateModule from '../src/operate';
 
 // --- Mock Dependencies ---
 
-const mockConfigure = jest.fn<typeof ConfigureModule.configure>();
-const mockApplyDefaults = jest.fn<typeof DefaultsModule.applyDefaults>();
-const mockRead = jest.fn<typeof ReadModule.read>();
-const mockValidate = jest.fn<typeof ValidateModule.validate>();
-const mockCreateOperator = jest.fn<typeof OperateModule.create>();
+const mockConfigure = vi.fn<typeof ConfigureModule.configure>();
+const mockApplyDefaults = vi.fn<typeof DefaultsModule.applyDefaults>();
+const mockRead = vi.fn<typeof ReadModule.read>();
+const mockValidate = vi.fn<typeof ValidateModule.validate>();
+const mockCreateOperator = vi.fn<typeof OperateModule.create>();
 const mockOperatorInstance = { /* Mock operator instance methods if needed */ } as Operator;
 
 // Mock the modules
-jest.unstable_mockModule('../src/configure', () => ({
+vi.mock('../src/configure', () => ({
     configure: mockConfigure,
 }));
 
-jest.unstable_mockModule('../src/defaults', () => ({
+vi.mock('../src/defaults', () => ({
     applyDefaults: mockApplyDefaults,
 }));
 
-jest.unstable_mockModule('../src/read', () => ({
+vi.mock('../src/read', () => ({
     read: mockRead,
 }));
 
-jest.unstable_mockModule('../src/validate', () => ({
+vi.mock('../src/validate', () => ({
     validate: mockValidate,
     // Add ArgumentError mock if needed by tests
 }));
 
-// Assuming 'operate' is the correct module name for the operator
-jest.unstable_mockModule('operate', () => ({
+// Mock the operate module
+vi.mock('../src/operate', () => ({
     create: mockCreateOperator,
 }));
 
@@ -50,23 +50,23 @@ describe('DreadCabinet Factory (`create`)', () => {
     let mockLogger: Logger;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         mockCommand = {
             // Mock commander methods used by configure if necessary
         } as Command;
 
         mockLogger = {
-            debug: jest.fn(),
-            info: jest.fn(),
-            warn: jest.fn(),
-            error: jest.fn(),
-            verbose: jest.fn(),
-            silly: jest.fn(),
+            debug: vi.fn(),
+            info: vi.fn(),
+            warn: vi.fn(),
+            error: vi.fn(),
+            verbose: vi.fn(),
+            silly: vi.fn(),
         };
 
         // Setup default return values for mocks
-        mockApplyDefaults.mockImplementation((config) => config as Config); // Pass through config by default
+        mockApplyDefaults.mockImplementation((config: any) => config as Config); // Pass through config by default
         mockRead.mockResolvedValue({});
         mockValidate.mockResolvedValue(undefined);
         mockCreateOperator.mockResolvedValue(mockOperatorInstance);
@@ -147,8 +147,8 @@ describe('DreadCabinet Factory (`create`)', () => {
 
         test('`setLogger` should update the logger used internally', async () => {
             const newLogger: Logger = {
-                debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn(),
-                verbose: jest.fn(), silly: jest.fn()
+                debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn(),
+                verbose: vi.fn(), silly: vi.fn()
             };
             dreadcabinet.setLogger(newLogger);
 

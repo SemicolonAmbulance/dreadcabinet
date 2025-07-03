@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { describe, test, expect, beforeEach } from 'vitest';
 import type { Args, Config, Feature } from '../src/dreadcabinet';
 
 // --- Dynamically Import Module Under Test ---

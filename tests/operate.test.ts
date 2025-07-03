@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import type { Args, Config, Operator, Options } from '../src/dreadcabinet';
 import type * as Input from '../src/input/input';
 import type * as Output from '../src/output';
@@ -7,26 +7,26 @@ import type * as Output from '../src/output';
 
 // Mock Input module
 // Use the actual return type structure from Input.create
-const mockInputProcess = jest.fn<(callback: (file: string, date?: Date) => Promise<void>) => Promise<void>>();
-const mockInputCreate = jest.fn<typeof Input.create>().mockReturnValue({
+const mockInputProcess = vi.fn<(callback: (file: string, date?: Date) => Promise<void>) => Promise<void>>();
+const mockInputCreate = vi.fn<typeof Input.create>().mockReturnValue({
     process: mockInputProcess,
 });
 
 // Mock Output module
 // Use the actual return type structure from Output.create
-const mockOutputConstructFilename = jest.fn<(date: Date, type: string, hash: string, options?: { subject?: string }) => string>();
-const mockOutputConstructOutputDirectory = jest.fn<(creationTime: Date) => string>();
+const mockOutputConstructFilename = vi.fn<(date: Date, type: string, hash: string, options?: { subject?: string }) => string>();
+const mockOutputConstructOutputDirectory = vi.fn<(creationTime: Date) => string>();
 
-const mockOutputCreate = jest.fn<typeof Output.create>().mockReturnValue({
+const mockOutputCreate = vi.fn<typeof Output.create>().mockReturnValue({
     constructFilename: mockOutputConstructFilename,
     constructOutputDirectory: mockOutputConstructOutputDirectory,
 });
 
-jest.unstable_mockModule('../src/input/input', () => ({
+vi.mock('../src/input/input', () => ({
     create: mockInputCreate,
 }));
 
-jest.unstable_mockModule('../src/output', () => ({ // Mocking the entire output module index
+vi.mock('../src/output', () => ({ // Mocking the entire output module index
     create: mockOutputCreate,
 }));
 
@@ -47,7 +47,7 @@ describe('Operator Factory (create)', () => {
     let testDate: Date;
 
     beforeEach(async () => { // Make beforeEach async if create is async
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         baseConfig = {
             inputDirectory: '/in',
@@ -72,12 +72,12 @@ describe('Operator Factory (create)', () => {
             features: ['input', 'output'], // Enable relevant features by default
             allowed: {}, // Add allowed if needed, or keep empty
             logger: { // Basic logger mock
-                debug: jest.fn(),
-                info: jest.fn(),
-                warn: jest.fn(),
-                error: jest.fn(),
-                verbose: jest.fn(),
-                silly: jest.fn(),
+                debug: vi.fn(),
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+                verbose: vi.fn(),
+                silly: vi.fn(),
             },
             addDefaults: false, // Or true depending on default behavior tested
         };
@@ -96,7 +96,7 @@ describe('Operator Factory (create)', () => {
     });
 
     test('should return an operator with a process function that calls input.process', async () => {
-        const callback = jest.fn<(file: string) => Promise<void>>();
+        const callback = vi.fn<(file: string) => Promise<void>>();
         mockInputProcess.mockResolvedValue(undefined); // Mock the process implementation
 
         await testOperator.process(callback);

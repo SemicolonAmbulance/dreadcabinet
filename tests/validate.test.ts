@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import type { Config, Options, FilesystemStructure, FilenameOption, Feature } from '../src/dreadcabinet';
 import type * as StorageUtil from '../src/util/storage';
 import type * as DatesUtil from '../src/util/dates';
@@ -6,43 +6,43 @@ import { ALLOWED_EXTENSIONS, ALLOWED_INPUT_FILENAME_OPTIONS, ALLOWED_INPUT_STRUC
 
 // --- Mock Dependencies ---
 
-const mockIsDirectoryReadable = jest.fn<StorageUtil.Utility['isDirectoryReadable']>();
-const mockIsDirectoryWritable = jest.fn<StorageUtil.Utility['isDirectoryWritable']>();
-const mockStorageCreate = jest.fn<typeof StorageUtil.create>().mockReturnValue({
+const mockIsDirectoryReadable = vi.fn<StorageUtil.Utility['isDirectoryReadable']>();
+const mockIsDirectoryWritable = vi.fn<StorageUtil.Utility['isDirectoryWritable']>();
+const mockStorageCreate = vi.fn<typeof StorageUtil.create>().mockReturnValue({
     isDirectoryReadable: mockIsDirectoryReadable,
     isDirectoryWritable: mockIsDirectoryWritable,
     // Add other methods if needed, mocked or otherwise (can be dummy implementations if not used)
     // @ts-ignore
-    forEachFileIn: jest.fn(),
+    forEachFileIn: vi.fn(),
     // @ts-ignore
-    readFile: jest.fn(),
+    readFile: vi.fn(),
     // @ts-ignore
-    writeFile: jest.fn(),
+    writeFile: vi.fn(),
     // @ts-ignore
-    ensureDir: jest.fn(),
+    ensureDir: vi.fn(),
     // @ts-ignore
-    remove: jest.fn(),
+    remove: vi.fn(),
     // @ts-ignore
-    pathExists: jest.fn(),
+    pathExists: vi.fn(),
     // @ts-ignore
-    copyFile: jest.fn(),
+    copyFile: vi.fn(),
     // @ts-ignore
-    moveFile: jest.fn(),
+    moveFile: vi.fn(),
     // @ts-ignore
-    listFiles: jest.fn(),
+    listFiles: vi.fn(),
     // @ts-ignore
-    createReadStream: jest.fn(),
+    createReadStream: vi.fn(),
     // @ts-ignore
-    createWriteStream: jest.fn(),
+    createWriteStream: vi.fn(),
 });
 
-const mockValidTimezones = jest.fn<typeof DatesUtil.validTimezones>();
+const mockValidTimezones = vi.fn<typeof DatesUtil.validTimezones>();
 
-jest.unstable_mockModule('../src/util/storage', () => ({
+vi.mock('../src/util/storage', () => ({
     create: mockStorageCreate,
 }));
 
-jest.unstable_mockModule('../src/util/dates', () => ({
+vi.mock('../src/util/dates', () => ({
     validTimezones: mockValidTimezones,
 }));
 
@@ -57,7 +57,7 @@ describe('validate', () => {
     let baseOptions: Options;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         // Reset mocks to default valid states
         mockIsDirectoryReadable.mockResolvedValue(true);
@@ -84,12 +84,12 @@ describe('validate', () => {
                 extensions: ALLOWED_EXTENSIONS,
             },
             logger: {
-                debug: jest.fn(),
-                info: jest.fn(),
-                warn: jest.fn(),
-                error: jest.fn(),
-                verbose: jest.fn(),
-                silly: jest.fn(),
+                debug: vi.fn(),
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+                verbose: vi.fn(),
+                silly: vi.fn(),
             },
             addDefaults: false,
         };

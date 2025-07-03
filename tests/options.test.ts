@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vitest';
 import { z } from 'zod';
 import {
     FilenameOptionSchema,
@@ -35,11 +35,11 @@ import {
 
 // --- Mock Console for Logger Tests ---
 const mockConsole = {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    log: jest.fn(), // Used by verbose and silly
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    log: vi.fn(), // Used by verbose and silly
 };
 
 // Assign mock console globally for tests
@@ -51,7 +51,7 @@ afterAll(() => {
     global.console = originalConsole;
 });
 beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 });
 
 

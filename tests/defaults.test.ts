@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach } from 'vitest';
 import { Config, DefaultOptions, Feature } from '../src/dreadcabinet';
 import { DEFAULT_CONCURRENCY, DEFAULT_EXTENSIONS, DEFAULT_INPUT_DIRECTORY, DEFAULT_INPUT_FILENAME_OPTIONS, DEFAULT_INPUT_STRUCTURE, DEFAULT_OUTPUT_DIRECTORY, DEFAULT_OUTPUT_FILENAME_OPTIONS, DEFAULT_OUTPUT_STRUCTURE, DEFAULT_RECURSIVE, DEFAULT_TIMEZONE } from '../src/constants';
 import { applyDefaults } from '../src/defaults';

@@ -1,35 +1,35 @@
-import { jest } from '@jest/globals';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import type { Logger } from '../../src/dreadcabinet'; // Adjust path if necessary
 import type * as StorageUtil from '../../src/util/storage'; // Adjust path if necessary
 
 // Mock the storage utility before importing the module under test
-const mockForEachFileIn = jest.fn<StorageUtil.Utility['forEachFileIn']>();
-const mockStorageCreate = jest.fn<typeof StorageUtil.create>().mockReturnValue({
+const mockForEachFileIn = vi.fn<StorageUtil.Utility['forEachFileIn']>();
+const mockStorageCreate = vi.fn<typeof StorageUtil.create>().mockReturnValue({
     forEachFileIn: mockForEachFileIn,
     // Add other methods if needed, mocked or otherwise
     // @ts-ignore
-    readFile: jest.fn(),
+    readFile: vi.fn(),
     // @ts-ignore
-    writeFile: jest.fn(),
+    writeFile: vi.fn(),
     // @ts-ignore
-    ensureDir: jest.fn(),
+    ensureDir: vi.fn(),
     // @ts-ignore
-    remove: jest.fn(),
+    remove: vi.fn(),
     // @ts-ignore
-    pathExists: jest.fn(),
+    pathExists: vi.fn(),
     // @ts-ignore
-    copyFile: jest.fn(),
+    copyFile: vi.fn(),
     // @ts-ignore
-    moveFile: jest.fn(),
+    moveFile: vi.fn(),
     // @ts-ignore
-    listFiles: jest.fn(),
+    listFiles: vi.fn(),
     // @ts-ignore
-    createReadStream: jest.fn(),
+    createReadStream: vi.fn(),
     // @ts-ignore
-    createWriteStream: jest.fn(),
+    createWriteStream: vi.fn(),
 });
 
-jest.unstable_mockModule('../../src/util/storage', () => ({
+vi.mock('../../src/util/storage', () => ({
     create: mockStorageCreate,
 }));
 
@@ -38,22 +38,22 @@ const { process: processUnstructured } = await import('../../src/input/unstructu
 
 describe('Input: Unstructured Process', () => {
     let mockLogger: Logger;
-    let mockCallback: jest.Mock<(file: string) => Promise<void>>;
+    let mockCallback: ReturnType<typeof vi.fn<(file: string) => Promise<void>>>;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         mockLogger = {
-            info: jest.fn(),
-            debug: jest.fn(),
-            warn: jest.fn(),
-            error: jest.fn(),
-            verbose: jest.fn(),
-            silly: jest.fn(),
+            info: vi.fn(),
+            debug: vi.fn(),
+            warn: vi.fn(),
+            error: vi.fn(),
+            verbose: vi.fn(),
+            silly: vi.fn(),
         };
 
         // @ts-ignore
-        mockCallback = jest.fn().mockResolvedValue(undefined);
+        mockCallback = vi.fn().mockResolvedValue(undefined);
 
         // Reset the implementation of forEachFileIn for each test
         mockForEachFileIn.mockImplementation(async (dir, callback, options) => {

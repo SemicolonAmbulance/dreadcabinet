@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Config, Options } from '../src/dreadcabinet';
 import type * as StorageUtil from '../src/util/storage';
 import type * as DatesUtil from '../src/util/dates';
@@ -7,55 +7,55 @@ import path from 'path'; // Import path for verification
 // --- Mock Dependencies ---
 
 // Dates Util Mock
-const mockDateFormat = jest.fn<DatesUtil.Utility['format']>();
+const mockDateFormat = vi.fn<DatesUtil.Utility['format']>();
 // @ts-ignore - Mocking only the passthrough behavior for Date objects
-const mockDateDate = jest.fn<DatesUtil.Utility['date']>().mockImplementation((d: Date) => d); // Pass through Date object
+const mockDateDate = vi.fn<DatesUtil.Utility['date']>().mockImplementation((d: Date) => d); // Pass through Date object
 // @ts-ignore - Only mocking used methods
-const mockDatesCreate = jest.fn<typeof DatesUtil.create>().mockReturnValue({
+const mockDatesCreate = vi.fn<typeof DatesUtil.create>().mockReturnValue({
     format: mockDateFormat,
     date: mockDateDate,
     // @ts-ignore - Add other methods if necessary
 });
 
 // Storage Util Mock
-const mockCreateDirectory = jest.fn<StorageUtil.Utility['createDirectory']>();
-const mockStorageCreate = jest.fn<typeof StorageUtil.create>().mockReturnValue({
+const mockCreateDirectory = vi.fn<StorageUtil.Utility['createDirectory']>();
+const mockStorageCreate = vi.fn<typeof StorageUtil.create>().mockReturnValue({
     createDirectory: mockCreateDirectory,
     // Add other methods if needed, mocked or otherwise (can be dummy implementations if not used)
     // @ts-ignore
-    isDirectoryReadable: jest.fn(),
+    isDirectoryReadable: vi.fn(),
     // @ts-ignore
-    isDirectoryWritable: jest.fn(),
+    isDirectoryWritable: vi.fn(),
     // @ts-ignore
-    forEachFileIn: jest.fn(),
+    forEachFileIn: vi.fn(),
     // @ts-ignore
-    readFile: jest.fn(),
+    readFile: vi.fn(),
     // @ts-ignore
-    writeFile: jest.fn(),
+    writeFile: vi.fn(),
     // @ts-ignore
-    ensureDir: jest.fn(),
+    ensureDir: vi.fn(),
     // @ts-ignore
-    remove: jest.fn(),
+    remove: vi.fn(),
     // @ts-ignore
-    pathExists: jest.fn(),
+    pathExists: vi.fn(),
     // @ts-ignore
-    copyFile: jest.fn(),
+    copyFile: vi.fn(),
     // @ts-ignore
-    moveFile: jest.fn(),
+    moveFile: vi.fn(),
     // @ts-ignore
-    listFiles: jest.fn(),
+    listFiles: vi.fn(),
     // @ts-ignore
-    createReadStream: jest.fn(),
+    createReadStream: vi.fn(),
     // @ts-ignore
-    createWriteStream: jest.fn(),
+    createWriteStream: vi.fn(),
 });
 
 
-jest.unstable_mockModule('../src/util/dates', () => ({
+vi.mock('../src/util/dates', () => ({
     create: mockDatesCreate,
 }));
 
-jest.unstable_mockModule('../src/util/storage', () => ({
+vi.mock('../src/util/storage', () => ({
     create: mockStorageCreate,
 }));
 
@@ -71,7 +71,7 @@ describe('Output Module', () => {
     let testDate: Date;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         testDate = new Date(2024, 5, 15, 10, 30, 0); // June 15, 2024, 10:30:00
 
@@ -103,12 +103,12 @@ describe('Output Module', () => {
 
         baseOptions = {
             logger: {
-                debug: jest.fn(),
-                info: jest.fn(),
-                warn: jest.fn(),
-                error: jest.fn(),
-                verbose: jest.fn(),
-                silly: jest.fn(),
+                debug: vi.fn(),
+                info: vi.fn(),
+                warn: vi.fn(),
+                error: vi.fn(),
+                verbose: vi.fn(),
+                silly: vi.fn(),
             },
             // Features/allowed not directly used by output module itself, but needed for Options type
             features: [],

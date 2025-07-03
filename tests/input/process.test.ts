@@ -1,15 +1,15 @@
-import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import type { Config, Feature, Logger, Args } from '../../src/dreadcabinet';
 
-// Mock dependencies using jest.unstable_mockModule
-const mockProcessStructuredInput = jest.fn<() => Promise<number>>();
-const mockProcessUnstructuredInput = jest.fn<() => Promise<number>>();
+// Mock dependencies using vi.mock
+const mockProcessStructuredInput = vi.fn<() => Promise<number>>();
+const mockProcessUnstructuredInput = vi.fn<() => Promise<number>>();
 
-jest.unstable_mockModule('../../src/input/structured', () => ({
+vi.mock('../../src/input/structured', () => ({
     process: mockProcessStructuredInput,
 }));
 
-jest.unstable_mockModule('../../src/input/unstructured', () => ({
+vi.mock('../../src/input/unstructured', () => ({
     process: mockProcessUnstructuredInput,
 }));
 
@@ -21,11 +21,11 @@ describe('Input Processing', () => {
     let mockArgs: Partial<Args>;
     let mockFeatures: Feature[];
     let mockLogger: Logger;
-    let mockCallback: jest.Mock<(file: string) => Promise<void>>;
+    let mockCallback: ReturnType<typeof vi.fn<(file: string) => Promise<void>>>;
 
     beforeEach(() => {
         // Reset mocks before each test
-        jest.clearAllMocks();
+        vi.clearAllMocks();
 
         // Default mock setup
         mockConfig = {
@@ -43,15 +43,15 @@ describe('Input Processing', () => {
         };
         mockFeatures = ['input']; // Default feature set
         mockLogger = {
-            debug: jest.fn(),
-            info: jest.fn(),
-            warn: jest.fn(),
-            error: jest.fn(),
-            verbose: jest.fn(),
-            silly: jest.fn(),
+            debug: vi.fn(),
+            info: vi.fn(),
+            warn: vi.fn(),
+            error: vi.fn(),
+            verbose: vi.fn(),
+            silly: vi.fn(),
         };
         // @ts-ignore - Ignore type error for jest mock compatibility if necessary
-        mockCallback = jest.fn().mockResolvedValue(undefined);
+        mockCallback = vi.fn().mockResolvedValue(undefined);
 
         // Mock the sub-processors to return a file count
         mockProcessStructuredInput.mockResolvedValue(5);
