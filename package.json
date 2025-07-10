@@ -41,12 +41,7 @@
     "dependencies": {
         "commander": "^14.0.0",
         "dayjs": "^1.11.13",
-        "dotenv": "^17.0.1",
         "glob": "^11.0.3",
-        "js-yaml": "^4.1.0",
-        "luxon": "^3.6.1",
-        "moment-timezone": "^0.6.0",
-        "winston": "^3.17.0",
         "zod": "^3.25.71"
     },
     "devDependencies": {
@@ -60,8 +55,6 @@
         "@rollup/plugin-replace": "^6.0.2",
         "@swc/core": "^1.12.9",
         "@theunwalked/cardigantime": "^0.0.13",
-        "@types/js-yaml": "^4.0.9",
-        "@types/luxon": "^3.6.2",
         "@types/node": "^24.0.10",
         "@typescript-eslint/eslint-plugin": "^8.35.1",
         "@typescript-eslint/parser": "^8.35.1",
